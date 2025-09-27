@@ -1,0 +1,6 @@
+@ElecLux_HostAddress = http://localhost:5001
+
+GET {{ElecLux_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
