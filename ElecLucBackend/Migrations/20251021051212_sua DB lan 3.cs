@@ -5,7 +5,7 @@
 namespace ElecLux.Migrations
 {
     /// <inheritdoc />
-    public partial class Themdblan1 : Migration
+    public partial class suaDBlan3 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

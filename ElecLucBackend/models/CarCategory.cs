@@ -1,16 +1,22 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Collections.Generic;
-public class CarCategory
+
+namespace Models
 {
-    [Key]
-    public int CategoryId { get; set; }
+    [Table("CarCategories")]
+    public class CarCategory
+    {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int CategoryId { get; set; }
 
-    [Required, MaxLength(100)]
-    public string Name { get; set; }
+        [Required, MaxLength(100)]
+        public string Name { get; set; }
 
-    [MaxLength(500)]
-    public string Description { get; set; }
+        [MaxLength(500)]
+        public string Description { get; set; }
 
-    public ICollection<Car> Cars { get; set; }
+        public ICollection<Car> Cars { get; set; }
+    }
 }

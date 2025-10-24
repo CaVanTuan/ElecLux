@@ -1,25 +1,42 @@
+using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Collections.Generic;
-public class Promotion
+
+namespace Models
 {
-    [Key]
-    public int PromoId { get; set; }
+    public enum PromotionStatus
+    {
+        Active,   // Còn hạn
+        Expired   // Hết hạn
+    }
 
-    [Required, MaxLength(50)]
-    public string Code { get; set; }
+    [Table("Promotions")]
+    public class Promotion
+    {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int PromoId { get; set; }
 
-    [MaxLength(500)]
-    public string Description { get; set; }
+        [Required, MaxLength(50)]
+        public string Code { get; set; }
 
-    [Range(0, 100)]
-    public double DiscountPercent { get; set; }
+        [MaxLength(500)]
+        public string Description { get; set; }
 
-    public DateTime StartDate { get; set; }
-    public DateTime EndDate { get; set; }
+        [Required]
+        [Range(0, 100)]
+        public double DiscountPercent { get; set; }
 
-    [MaxLength(20)]
-    public string Status { get; set; } // còn hạn / hết hạn
-    public ICollection<BookingPromotion> BookingPromotions { get; set; }
+        [Required]
+        public DateTime StartDate { get; set; }
 
+        [Required]
+        public DateTime EndDate { get; set; }
+
+        [Required]
+        public PromotionStatus Status { get; set; } = PromotionStatus.Active;
+
+        public ICollection<BookingPromotion> BookingPromotions { get; set; } = new List<BookingPromotion>();
+    }
 }

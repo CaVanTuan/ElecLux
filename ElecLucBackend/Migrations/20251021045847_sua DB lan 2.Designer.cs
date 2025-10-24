@@ -11,20 +11,20 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ElecLux.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250925162209_DbLan1")]
-    partial class DbLan1
+    [Migration("20251021045847_sua DB lan 2")]
+    partial class suaDBlan2
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.9")
+                .HasAnnotation("ProductVersion", "9.0.10")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("Booking", b =>
+            modelBuilder.Entity("Models.Booking", b =>
                 {
                     b.Property<int>("BookingId")
                         .ValueGeneratedOnAdd()
@@ -66,13 +66,19 @@ namespace ElecLux.Migrations
                     b.ToTable("Bookings");
                 });
 
-            modelBuilder.Entity("BookingPromotion", b =>
+            modelBuilder.Entity("Models.BookingPromotion", b =>
                 {
                     b.Property<int>("BookingId")
                         .HasColumnType("int");
 
                     b.Property<int>("PromoId")
                         .HasColumnType("int");
+
+                    b.Property<int>("BookingPromotionId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("BookingPromotionId"));
 
                     b.HasKey("BookingId", "PromoId");
 
@@ -81,7 +87,7 @@ namespace ElecLux.Migrations
                     b.ToTable("BookingPromotions");
                 });
 
-            modelBuilder.Entity("Car", b =>
+            modelBuilder.Entity("Models.Car", b =>
                 {
                     b.Property<int>("CarId")
                         .ValueGeneratedOnAdd()
@@ -107,9 +113,6 @@ namespace ElecLux.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<decimal>("PricePerDay")
-                        .HasColumnType("decimal(18,2)");
-
                     b.Property<int>("RangeKm")
                         .HasColumnType("int");
 
@@ -128,7 +131,7 @@ namespace ElecLux.Migrations
                     b.ToTable("Cars");
                 });
 
-            modelBuilder.Entity("CarCategory", b =>
+            modelBuilder.Entity("Models.CarCategory", b =>
                 {
                     b.Property<int>("CategoryId")
                         .ValueGeneratedOnAdd()
@@ -151,7 +154,58 @@ namespace ElecLux.Migrations
                     b.ToTable("CarCategories");
                 });
 
-            modelBuilder.Entity("Feedback", b =>
+            modelBuilder.Entity("Models.CarImage", b =>
+                {
+                    b.Property<int>("ImageId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ImageId"));
+
+                    b.Property<int>("CarId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Url")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.HasKey("ImageId");
+
+                    b.HasIndex("CarId");
+
+                    b.ToTable("CarImages");
+                });
+
+            modelBuilder.Entity("Models.CarSpecification", b =>
+                {
+                    b.Property<int>("SpecId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("SpecId"));
+
+                    b.Property<int>("CarId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Key")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("SpecId");
+
+                    b.HasIndex("CarId");
+
+                    b.ToTable("CarSpecifications");
+                });
+
+            modelBuilder.Entity("Models.Feedback", b =>
                 {
                     b.Property<int>("FeedbackId")
                         .ValueGeneratedOnAdd()
@@ -185,7 +239,7 @@ namespace ElecLux.Migrations
                     b.ToTable("Feedbacks");
                 });
 
-            modelBuilder.Entity("Notification", b =>
+            modelBuilder.Entity("Models.Notification", b =>
                 {
                     b.Property<int>("NotificationId")
                         .ValueGeneratedOnAdd()
@@ -221,7 +275,7 @@ namespace ElecLux.Migrations
                     b.ToTable("Notifications");
                 });
 
-            modelBuilder.Entity("Payment", b =>
+            modelBuilder.Entity("Models.Payment", b =>
                 {
                     b.Property<int>("PaymentId")
                         .ValueGeneratedOnAdd()
@@ -256,7 +310,7 @@ namespace ElecLux.Migrations
                     b.ToTable("Payments");
                 });
 
-            modelBuilder.Entity("Promotion", b =>
+            modelBuilder.Entity("Models.Promotion", b =>
                 {
                     b.Property<int>("PromoId")
                         .ValueGeneratedOnAdd()
@@ -283,17 +337,15 @@ namespace ElecLux.Migrations
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
 
                     b.HasKey("PromoId");
 
                     b.ToTable("Promotions");
                 });
 
-            modelBuilder.Entity("RentalPlan", b =>
+            modelBuilder.Entity("Models.RentalPlan", b =>
                 {
                     b.Property<int>("PlanId")
                         .ValueGeneratedOnAdd()
@@ -319,7 +371,7 @@ namespace ElecLux.Migrations
                     b.ToTable("RentalPlans");
                 });
 
-            modelBuilder.Entity("TestDrive", b =>
+            modelBuilder.Entity("Models.TestDrive", b =>
                 {
                     b.Property<int>("TestDriveId")
                         .ValueGeneratedOnAdd()
@@ -350,7 +402,7 @@ namespace ElecLux.Migrations
                     b.ToTable("TestDrives");
                 });
 
-            modelBuilder.Entity("User", b =>
+            modelBuilder.Entity("Models.User", b =>
                 {
                     b.Property<int>("UserId")
                         .ValueGeneratedOnAdd()
@@ -393,21 +445,21 @@ namespace ElecLux.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("Booking", b =>
+            modelBuilder.Entity("Models.Booking", b =>
                 {
-                    b.HasOne("Car", "Car")
+                    b.HasOne("Models.Car", "Car")
                         .WithMany("Bookings")
                         .HasForeignKey("CarId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("RentalPlan", "Plan")
+                    b.HasOne("Models.RentalPlan", "Plan")
                         .WithMany("Bookings")
                         .HasForeignKey("PlanId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("User", "User")
+                    b.HasOne("Models.User", "User")
                         .WithMany("Bookings")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -420,15 +472,15 @@ namespace ElecLux.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("BookingPromotion", b =>
+            modelBuilder.Entity("Models.BookingPromotion", b =>
                 {
-                    b.HasOne("Booking", "Booking")
+                    b.HasOne("Models.Booking", "Booking")
                         .WithMany("BookingPromotions")
                         .HasForeignKey("BookingId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Promotion", "Promotion")
+                    b.HasOne("Models.Promotion", "Promotion")
                         .WithMany("BookingPromotions")
                         .HasForeignKey("PromoId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -439,9 +491,9 @@ namespace ElecLux.Migrations
                     b.Navigation("Promotion");
                 });
 
-            modelBuilder.Entity("Car", b =>
+            modelBuilder.Entity("Models.Car", b =>
                 {
-                    b.HasOne("CarCategory", "Category")
+                    b.HasOne("Models.CarCategory", "Category")
                         .WithMany("Cars")
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -450,15 +502,37 @@ namespace ElecLux.Migrations
                     b.Navigation("Category");
                 });
 
-            modelBuilder.Entity("Feedback", b =>
+            modelBuilder.Entity("Models.CarImage", b =>
                 {
-                    b.HasOne("Car", "Car")
+                    b.HasOne("Models.Car", "Car")
+                        .WithMany("CarImages")
+                        .HasForeignKey("CarId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Car");
+                });
+
+            modelBuilder.Entity("Models.CarSpecification", b =>
+                {
+                    b.HasOne("Models.Car", "Car")
+                        .WithMany("Specifications")
+                        .HasForeignKey("CarId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Car");
+                });
+
+            modelBuilder.Entity("Models.Feedback", b =>
+                {
+                    b.HasOne("Models.Car", "Car")
                         .WithMany("Feedbacks")
                         .HasForeignKey("CarId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("User", "User")
+                    b.HasOne("Models.User", "User")
                         .WithMany("Feedbacks")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -469,9 +543,9 @@ namespace ElecLux.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Notification", b =>
+            modelBuilder.Entity("Models.Notification", b =>
                 {
-                    b.HasOne("User", "User")
+                    b.HasOne("Models.User", "User")
                         .WithMany("Notifications")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -480,20 +554,20 @@ namespace ElecLux.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Payment", b =>
+            modelBuilder.Entity("Models.Payment", b =>
                 {
-                    b.HasOne("Booking", "Booking")
+                    b.HasOne("Models.Booking", "Booking")
                         .WithOne("Payment")
-                        .HasForeignKey("Payment", "BookingId")
+                        .HasForeignKey("Models.Payment", "BookingId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Booking");
                 });
 
-            modelBuilder.Entity("RentalPlan", b =>
+            modelBuilder.Entity("Models.RentalPlan", b =>
                 {
-                    b.HasOne("Car", "Car")
+                    b.HasOne("Models.Car", "Car")
                         .WithMany("RentalPlans")
                         .HasForeignKey("CarId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -502,15 +576,15 @@ namespace ElecLux.Migrations
                     b.Navigation("Car");
                 });
 
-            modelBuilder.Entity("TestDrive", b =>
+            modelBuilder.Entity("Models.TestDrive", b =>
                 {
-                    b.HasOne("Car", "Car")
+                    b.HasOne("Models.Car", "Car")
                         .WithMany("TestDrives")
                         .HasForeignKey("CarId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("User", "User")
+                    b.HasOne("Models.User", "User")
                         .WithMany("TestDrives")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -521,7 +595,7 @@ namespace ElecLux.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Booking", b =>
+            modelBuilder.Entity("Models.Booking", b =>
                 {
                     b.Navigation("BookingPromotions");
 
@@ -529,33 +603,37 @@ namespace ElecLux.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Car", b =>
+            modelBuilder.Entity("Models.Car", b =>
                 {
                     b.Navigation("Bookings");
+
+                    b.Navigation("CarImages");
 
                     b.Navigation("Feedbacks");
 
                     b.Navigation("RentalPlans");
 
+                    b.Navigation("Specifications");
+
                     b.Navigation("TestDrives");
                 });
 
-            modelBuilder.Entity("CarCategory", b =>
+            modelBuilder.Entity("Models.CarCategory", b =>
                 {
                     b.Navigation("Cars");
                 });
 
-            modelBuilder.Entity("Promotion", b =>
+            modelBuilder.Entity("Models.Promotion", b =>
                 {
                     b.Navigation("BookingPromotions");
                 });
 
-            modelBuilder.Entity("RentalPlan", b =>
+            modelBuilder.Entity("Models.RentalPlan", b =>
                 {
                     b.Navigation("Bookings");
                 });
 
-            modelBuilder.Entity("User", b =>
+            modelBuilder.Entity("Models.User", b =>
                 {
                     b.Navigation("Bookings");
 

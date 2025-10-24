@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-
+using Models;
 public class AppDbContext : DbContext
 {
     public AppDbContext(DbContextOptions<AppDbContext> options) 
@@ -18,6 +18,8 @@ public class AppDbContext : DbContext
     public DbSet<Notification> Notifications { get; set; }
     public DbSet<Promotion> Promotions { get; set; }
     public DbSet<BookingPromotion> BookingPromotions { get; set; }
+    public DbSet<CarImage> CarImages { get; set; }
+    public DbSet<CarSpecification> CarSpecifications { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -99,5 +101,14 @@ public class AppDbContext : DbContext
             .WithMany(u => u.Notifications)
             .HasForeignKey(n => n.UserId)
             .OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<CarSpecification>()
+            .HasOne(s => s.Car)
+            .WithMany(c => c.Specifications)
+            .HasForeignKey(s => s.CarId);
+
+        modelBuilder.Entity<CarImage>()
+            .HasOne(i => i.Car)
+            .WithMany(c => c.CarImages)
+            .HasForeignKey(i => i.CarId);
     }
 }

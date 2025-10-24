@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace ElecLux.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class suaDB : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -36,7 +36,7 @@ namespace ElecLux.Migrations
                     DiscountPercent = table.Column<double>(type: "float", nullable: false),
                     StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     EndDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Status = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false)
+                    Status = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -71,7 +71,6 @@ namespace ElecLux.Migrations
                     Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Type = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     Seats = table.Column<int>(type: "int", nullable: false),
-                    PricePerDay = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     RangeKm = table.Column<int>(type: "int", nullable: false),
                     ImageUrl = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: false),
                     Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false)
@@ -230,7 +229,9 @@ namespace ElecLux.Migrations
                 columns: table => new
                 {
                     BookingId = table.Column<int>(type: "int", nullable: false),
-                    PromoId = table.Column<int>(type: "int", nullable: false)
+                    PromoId = table.Column<int>(type: "int", nullable: false),
+                    BookingPromotionId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1")
                 },
                 constraints: table =>
                 {
