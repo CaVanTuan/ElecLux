@@ -63,6 +63,8 @@ namespace Controllers
             if (listOfCarCategories == null) return NotFound("Không tìm thấy danh mục");
             var listOfCars = await _context.Cars
             .Where(c => c.CategoryId == listOfCarCategories.CategoryId)
+            .Include(c => c.Category)
+            .Include(c => c.RentalPlans)
             .Include(c => c.Specifications)
             .Include(c => c.CarImages)
             .ToListAsync();
@@ -73,6 +75,8 @@ namespace Controllers
         public async Task<IActionResult> GetCarById(int carId)
         {
             var car = await _context.Cars
+            .Include(c => c.Category)
+            .Include(c => c.RentalPlans)
             .Include(c => c.Specifications)
             .Include(c => c.CarImages)
             .FirstOrDefaultAsync(c => c.CarId == carId);
@@ -84,6 +88,8 @@ namespace Controllers
         public async Task<IActionResult> GetAllCar()
         {
             var listOfCar = await _context.Cars
+            .Include(c => c.Category)
+            .Include(c => c.RentalPlans)
             .Include(c => c.Specifications)
             .Include(c => c.CarImages)
             .ToListAsync();

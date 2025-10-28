@@ -75,6 +75,16 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("ElecLuxDb"))
 );
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy.AllowAnyOrigin() 
+              .AllowAnyMethod()   
+              .AllowAnyHeader();  
+    });
+});
+
 var app = builder.Build();
 
 app.UseSwagger();
@@ -84,6 +94,7 @@ app.UseSwaggerUI(c =>
     c.RoutePrefix = "";
 });
 
+app.UseCors("AllowAll");
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
