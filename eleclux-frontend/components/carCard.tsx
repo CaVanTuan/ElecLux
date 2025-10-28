@@ -2,9 +2,13 @@
 
 import Link from "next/link";
 
-export default function CarCard({ car }) {
+interface CarCardProps {
+  car: any;
+}
+
+export default function CarCard({ car }: CarCardProps) {
   return (
-  <Link href={`/car/${car.CarId || car.id || car.ID}`}>
+    <Link href={`/car/${car.carId}`} className="block">
       <div className="bg-white p-4 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-200 cursor-pointer">
         <img
           src={car.imageUrl || "/default-car.jpg"}
@@ -19,7 +23,7 @@ export default function CarCard({ car }) {
 
         {car.rentalPlans?.length > 0 ? (
           <ul className="text-sm text-gray-700 mb-3">
-            {car.rentalPlans.map((plan) => (
+            {car.rentalPlans.map((plan: any) => (
               <li key={plan.planId}>
                 ⏱ {plan.durationType}: 💰 {plan.price.toLocaleString()} VNĐ
               </li>

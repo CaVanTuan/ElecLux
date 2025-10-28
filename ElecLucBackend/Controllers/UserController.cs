@@ -25,8 +25,8 @@ namespace Controllers
             {
                 Name = request.Name,
                 Email = request.Email,
-                Password = request.Password,
-                Phone = BCrypt.Net.BCrypt.HashPassword(request.Phone),
+                Password = BCrypt.Net.BCrypt.HashPassword(request.Password),
+                Phone = request.Phone,
                 Address = request.Address,
                 Role = "user"
             };

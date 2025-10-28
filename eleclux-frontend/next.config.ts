@@ -1,7 +1,10 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+images: {
+    domains: ['greenfuture.tech'], // thêm domain của cậu vào đây
+  },
+
 };
 
 export default nextConfig;
