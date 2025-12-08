@@ -1,6 +1,7 @@
 import { ReactNode } from "react";
 import SideBar from "@/components/sideBar";
 import Navbar from "@/components/navBar";
+import Footer from "@/components/footer";
 import { Toaster } from "react-hot-toast";
 import "./globals.css";
 
@@ -14,7 +15,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           <Navbar />
         </div>
 
-        {/* Sidebar dưới navbar */}
+        {/* Sidebar */}
         <div className="fixed top-[80px] left-0 w-60 h-[calc(100vh-80px)] z-40">
           <SideBar />
         </div>
@@ -26,6 +27,11 @@ export default function RootLayout({ children }: { children: ReactNode }) {
 
         {/* Toaster hiển thị toast */}
         <Toaster position="top-right" reverseOrder={false} />
+        
+        {/* Footer */}
+        <div className="ml-60 mt-10">
+          <Footer />
+        </div>
       </body>
     </html>
   );
