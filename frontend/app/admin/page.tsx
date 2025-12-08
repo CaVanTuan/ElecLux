@@ -54,50 +54,65 @@ export default function AdminDashboard() {
   const loadRevenue = useCallback(async () => {
     try {
       setLoadingRevenue(true);
+
       const revenueRaw = await getRevenue({ groupBy, carId: filterCarId, planId: filterPlanId });
       const bookingsRaw = await getBookingStats({ carId: filterCarId, planId: filterPlanId });
 
       const revenueMap: Record<string, RevenueItem> = {};
+
+      // Xử lý revenue
       revenueRaw.forEach((item: any) => {
         let label = item.label;
         const revenue = item.revenue ?? item.value ?? item.Revenue ?? 0;
         const d = new Date(label);
 
-        if (groupBy === "day") label = d.toISOString().split("T")[0];
-        else if (groupBy === "month") label = `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, "0")}`;
-        else if (groupBy === "year") label = `${d.getFullYear()}`;
+        if (!isNaN(d.getTime())) {
+          if (groupBy === "day") label = d.toISOString().split("T")[0];
+          else if (groupBy === "month")
+            label = `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, "0")}`;
+          else if (groupBy === "year") label = `${d.getFullYear()}`;
+        } else {
+          label = "Unknown"; // nếu label không hợp lệ
+        }
 
         revenueMap[label] = { label, revenue, bookings: 0 };
       });
 
+      // Xử lý bookings
       bookingsRaw.forEach((item: any) => {
         let label = item.label;
         const count = item.count ?? 0;
         const d = new Date(label);
 
-        if (groupBy === "day") label = d.toISOString().split("T")[0];
-        else if (groupBy === "month") label = `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, "0")}`;
-        else if (groupBy === "year") label = `${d.getFullYear()}`;
+        if (!isNaN(d.getTime())) {
+          if (groupBy === "day") label = d.toISOString().split("T")[0];
+          else if (groupBy === "month")
+            label = `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, "0")}`;
+          else if (groupBy === "year") label = `${d.getFullYear()}`;
+        } else {
+          label = "Unknown";
+        }
 
         if (revenueMap[label]) revenueMap[label].bookings = count;
         else revenueMap[label] = { label, revenue: 0, bookings: count };
       });
 
+      // Tạo chart labels mặc định
       const today = new Date();
       const chartLabels: string[] =
         groupBy === "day"
           ? Array.from({ length: 9 }, (_, i) => {
-              const d = new Date(today);
-              d.setDate(d.getDate() + i - 4);
-              return d.toISOString().split("T")[0];
-            })
+            const d = new Date(today);
+            d.setDate(d.getDate() + i - 4);
+            return d.toISOString().split("T")[0];
+          })
           : groupBy === "month"
-          ? Array.from({ length: 12 }, (_, i) =>
-              `${today.getFullYear()}-${(i + 1).toString().padStart(2, "0")}`
-            )
-          : Array.from({ length: 9 }, (_, i) => `${today.getFullYear() - 2 + i}`);
+            ? Array.from({ length: 12 }, (_, i) => `${today.getFullYear()}-${(i + 1).toString().padStart(2, "0")}`)
+            : Array.from({ length: 9 }, (_, i) => `${today.getFullYear() - 2 + i}`);
 
-      setChartData(chartLabels.map((label) => revenueMap[label] ?? { label, revenue: 0, bookings: 0 }));
+      setChartData(
+        chartLabels.map((label) => revenueMap[label] ?? { label, revenue: 0, bookings: 0 })
+      );
     } catch (err) {
       console.error("Revenue load error:", err);
     } finally {

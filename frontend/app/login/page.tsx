@@ -2,6 +2,7 @@
 
 import { useState, ChangeEvent, FormEvent } from "react";
 import { useRouter } from "next/navigation";
+import { sendVerificationEmail } from "@/services/userServices";
 import { login } from "@/services/authServices";
 import { toast } from "react-hot-toast";
 import Link from "next/link";
@@ -16,6 +17,7 @@ export default function LoginPage() {
   const [form, setForm] = useState<LoginForm>({ identifier: "", password: "" });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [sendingVerify, setSendingVerify] = useState(false);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -28,9 +30,16 @@ export default function LoginPage() {
 
     try {
       const res = await login(form.identifier, form.password);
-
+      console.log("User: ", res);
       if (!res || !res.token) {
         setError("Đăng nhập thất bại!");
+        return;
+      }
+
+      // Nếu bị khóa do chưa verify email
+      if (res.user && res.user.isDelete) {
+        setError("Tài khoản chưa xác thực email. Vui lòng xác thực lại!");
+        setLoading(false);
         return;
       }
 
@@ -46,13 +55,6 @@ export default function LoginPage() {
         return;
       }
 
-      // Nếu user bình thường mà chưa đăng ký email (nếu muốn)
-      if (res.userNotFound) {
-        toast(`Email chưa đăng ký, chuyển sang trang đăng ký ✨`);
-        router.push("/register");
-        return;
-      }
-
       toast.success(`Xin chào ${res.user.name} 💕`);
       router.push("/");
 
@@ -65,6 +67,24 @@ export default function LoginPage() {
       console.error(err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleResendVerify = async () => {
+    if (!form.identifier) {
+      toast.error("Vui lòng nhập email để gửi lại link xác thực!");
+      return;
+    }
+
+    try {
+      setSendingVerify(true);
+      await sendVerificationEmail(form.identifier);
+      toast.success("Đã gửi lại email xác thực ✨");
+    } catch (err: any) {
+      toast.error("Gửi email thất bại, thử lại sau!");
+      console.error(err);
+    } finally {
+      setSendingVerify(false);
     }
   };
 
@@ -112,14 +132,22 @@ export default function LoginPage() {
             placeholder="••••••••"
             className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-400 outline-none transition"
           />
-          {/* Nút quên mật khẩu */}
-          <div className="flex justify-end">
+          {/* Link quên mật khẩu + xác thực email */}
+          <div className="flex flex-col items-end space-y-1">
             <Link
               href="/forgot-password"
               className="text-sm text-blue-500 hover:underline"
             >
               Quên mật khẩu?
             </Link>
+            <button
+              type="button"
+              onClick={handleResendVerify}
+              disabled={sendingVerify}
+              className="text-sm text-green-500 hover:underline disabled:opacity-60"
+            >
+              {sendingVerify ? "Đang gửi..." : "Gửi lại email xác thực"}
+            </button>
           </div>
         </div>
 

@@ -24,14 +24,6 @@ namespace Controllers
             var curentUser = await _context.Users.FindAsync(currentUserId);
             if (curentUser == null) return NotFound("Người dùng không tồn tại");
 
-            if (!curentUser.IsVerified && DateTime.UtcNow > curentUser.CreatedAt.AddHours(24))
-            {
-                curentUser.IsDeleted = true;
-                await _context.SaveChangesAsync();
-            }
-            if (curentUser.IsDeleted)
-                return Forbid("Tài khoản chưa xác thực email sau 24h, tạm thời không thể đặt xe");
-
             var car = await _context.Cars.FindAsync(request.CarId);
             if (car == null) return NotFound("Xe không tồn tại");
 
@@ -80,74 +72,110 @@ namespace Controllers
             });
         }
 
-        [HttpGet("All")]
-        // [Authorize(Roles = "admin")]
-        public async Task<IActionResult> GetAllOrder()
-        {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var listOfBooking = await _context.Bookings
-            .Include(b => b.Car)
-            .Include(b => b.Plan)
-            .Include(b => b.Payments)
-            .Include(b => b.BookingPromotions)
-                .ThenInclude(bp => bp.Promotion)
-            .ToListAsync();
-
-            var result = listOfBooking.Select(b => new
-            {
-                b.BookingId,
-                Car = b.Car,
-                Plan = b.Plan,
-                b.StartDate,
-                b.EndDate,
-                b.TotalPrice,
-                Status = b.Status,
-                Payment = b.Payments.OrderByDescending(p => p.PaymentDate).FirstOrDefault(),
-                Promo = b.BookingPromotions.FirstOrDefault()?.Promotion
-            });
-
-            return Ok(result);
-        }
-
-        [HttpGet("get-by-status")]
-        [Authorize(Roles = "admin")]
-        public async Task<IActionResult> GetBookingByStatus(string bookingStatus)
-        {
-            var listBooking = await _context.Bookings
-            .Where(c => c.Status == bookingStatus)
-            .ToListAsync();
-            return Ok(listBooking);
-        }
-
         [HttpGet("me")]
         [Authorize]
         public async Task<IActionResult> GetBookingOfCurrentUser()
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var listOfBooking = await _context.Bookings
-            .Include(b => b.Car)
-            .Include(b => b.Plan)
-            .Include(b => b.Payments)
-            .Include(b => b.BookingPromotions)
-                .ThenInclude(bp => bp.Promotion)
-            .Where(c => c.UserId == int.Parse(userId))
-            .ToListAsync();
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
-            var result = listOfBooking.Select(b => new
+            var bookings = await _context.Bookings
+                .Include(b => b.Car)
+                .Include(b => b.Plan)
+                .Include(b => b.Payments)
+                .Include(b => b.BookingPromotions)
+                    .ThenInclude(bp => bp.Promotion)
+                .Where(b => b.UserId == userId)
+                .ToListAsync();
+
+            var result = bookings.Select(b => new
             {
                 b.BookingId,
-                Car = b.Car,
-                Plan = b.Plan,
+                Car = new
+                {
+                    b.Car.CarId,
+                    b.Car.Name,
+                    b.Car.Type,
+                    b.Car.Seats,
+                    b.Car.RangeKm,
+                    b.Car.ImageUrl
+                },
+                Plan = new
+                {
+                    b.Plan.PlanId,
+                    b.Plan.DurationType,
+                    b.Plan.Price
+                },
                 b.StartDate,
                 b.EndDate,
                 b.TotalPrice,
-                Status = b.Status,
-                Payment = b.Payments.OrderByDescending(p => p.PaymentDate).FirstOrDefault(),
-                Promo = b.BookingPromotions.FirstOrDefault()?.Promotion
+                b.Status,
+                LastPayment = b.Payments
+                .OrderByDescending(p => p.PaymentDate)
+                .Select(p => new { p.PaymentId, p.Amount, p.PaymentDate })
+                .FirstOrDefault(),
+                Promo = b.BookingPromotions
+                .Select(bp => new
+                {
+                    bp.Promotion.PromoId,
+                    bp.Promotion.Code,
+                    bp.Promotion.DiscountPercent
+                })
+                .FirstOrDefault()
             });
 
             return Ok(result);
         }
+
+        [HttpGet("All")]
+        public async Task<IActionResult> GetAllOrder()
+        {
+            var bookings = await _context.Bookings
+                .Include(b => b.Car)
+                .Include(b => b.Plan)
+                .Include(b => b.Payments)
+                .Include(b => b.BookingPromotions)
+                    .ThenInclude(bp => bp.Promotion)
+                .ToListAsync();
+
+            var result = bookings.Select(b => new
+            {
+                b.BookingId,
+                Car = new
+                {
+                    b.Car.CarId,
+                    b.Car.Name,
+                    b.Car.Type,
+                    b.Car.Seats,
+                    b.Car.RangeKm,
+                    b.Car.ImageUrl
+                },
+                Plan = new
+                {
+                    b.Plan.PlanId,
+                    b.Plan.DurationType,
+                    b.Plan.Price
+                },
+                b.StartDate,
+                b.EndDate,
+                b.TotalPrice,
+                b.Status,
+                LastPayment = b.Payments
+                .OrderByDescending(p => p.PaymentDate)
+                .Select(p => new { p.PaymentId, p.Amount, p.PaymentDate })
+                .FirstOrDefault(),
+                        Promo = b.BookingPromotions
+                .Select(bp => new
+                {
+                    bp.Promotion.PromoId,
+                    bp.Promotion.Code,
+                    bp.Promotion.DiscountPercent
+                })
+                .FirstOrDefault()
+            });
+
+            return Ok(result);
+        }
+
         [HttpPut("update-status/{bookingId}")]
         [Authorize(Roles = "admin")]
         public async Task<IActionResult> UpdateBookingStatus(int bookingId)

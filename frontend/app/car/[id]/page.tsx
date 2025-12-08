@@ -29,6 +29,7 @@ export default function CarDetailPage() {
   }, []);
 
   useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
     const fetchCar = async () => {
       try {
         const data = await getCarById(Number(id));

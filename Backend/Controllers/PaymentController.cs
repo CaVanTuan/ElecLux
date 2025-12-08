@@ -43,8 +43,27 @@ namespace Controllers
             decimal finalAmount = booking.TotalPrice;
             if (promo != null)
             {
+                var alreadyUsed = await _context.BookingPromotions
+                    .Include(bp => bp.Booking)
+                    .AnyAsync(bp => bp.PromoId == promo.PromoId && bp.Booking.UserId == booking.UserId);
+
+                if (alreadyUsed)
+                    return BadRequest(
+                        new
+                        {
+                            message = ("Bạn đã sử dụng mã giảm giá này trước đó rồi.")
+                        }
+                    );
+                var bookingPromo = new BookingPromotion
+                {
+                    BookingId = booking.BookingId,
+                    PromoId = promo.PromoId
+                };
+                _context.BookingPromotions.Add(bookingPromo);
+
                 finalAmount = booking.TotalPrice - booking.TotalPrice * (decimal)(promo.DiscountPercent / 100);
             }
+            
             payment.Amount = finalAmount;
             if (request.Method == "COD") payment.Status = "Pending";
             if (payment.Status == "Paid") booking.Status = "Paid";
@@ -81,6 +100,6 @@ namespace Controllers
     }
     public class UpdatePaymentRequest
     {
-        public string Status{ get; set; }
+        public string Status { get; set; }
     }
 }

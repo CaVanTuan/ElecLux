@@ -1,11 +1,13 @@
 "use client";
 
+import axios from "axios";
 import { useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { getCarById } from "@/services/carServices";
 import { createBooking } from "@/services/bookingServices";
 import { createPayment } from "@/services/paymentServices";
 import { getActivePromotions, getPromotionByCode } from "@/services/promotionServices";
+import toast from "react-hot-toast";
 
 export default function CheckoutPage() {
     const searchParams = useSearchParams();
@@ -121,9 +123,13 @@ export default function CheckoutPage() {
 
             alert("Đặt xe và thanh toán COD thành công 😎");
             router.push("/booking");
-        } catch (error) {
-            console.error(error);
-            alert("Đặt xe thất bại 😢");
+        } catch (err) {
+            if (axios.isAxiosError(err)) {
+                const msg = err.response?.data?.message || err.message;
+                toast.error(msg);
+            } else {
+                alert("Đặt xe thất bại 😢");
+            }
         } finally {
             setSubmitting(false);
         }

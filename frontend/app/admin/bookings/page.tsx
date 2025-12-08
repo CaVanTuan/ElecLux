@@ -57,21 +57,21 @@ export default function AdminBookingsPage() {
         endDate: b.endDate,
         totalPrice: b.totalPrice,
         status: b.status,
-        lastPayment: b.payment
+        lastPayment: b.lastPayment
           ? {
-              paymentId: b.payment.paymentId ?? b.payment.id,
-              amount: b.payment.amount,
-              method: b.payment.method,
-              status: b.payment.status,
-              paymentDate: b.payment.paymentDate,
-            }
+            paymentId: b.lastPayment.paymentId ?? b.lastPayment.id,
+            amount: b.lastPayment.amount,
+            method: b.lastPayment.method ?? "COD",
+            status: b.lastPayment.status ?? "Pending",
+            paymentDate: b.lastPayment.paymentDate,
+          }
           : null,
         promo: b.promo
           ? {
-              promoId: b.promo.promotionId ?? b.promo.id,
-              code: b.promo.code,
-              discountPercent: b.promo.discountPercent,
-            }
+            promoId: b.promo.promotionId ?? b.promo.id,
+            code: b.promo.code,
+            discountPercent: b.promo.discountPercent,
+          }
           : null,
       }));
 
@@ -163,8 +163,8 @@ export default function AdminBookingsPage() {
               <td className="border px-2 py-1">
                 {b.lastPayment
                   ? `${b.lastPayment.amount.toLocaleString(
-                      "vi-VN"
-                    )} - ${b.lastPayment.status}`
+                    "vi-VN"
+                  )} - ${b.lastPayment.status}`
                   : "-"}
               </td>
               <td className="border px-2 py-1">{b.promo?.code || "-"}</td>

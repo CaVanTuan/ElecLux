@@ -40,11 +40,11 @@ export default function BookingDetailPage() {
 
   const car = booking.car;
   const plan = booking.plan;
-  const payment = booking.payment;
+  const lastPayment = booking.lastPayment; // đồng bộ với BookingPage
   const promo = booking.promo;
 
   const originalPrice = booking.totalPrice ?? 0;
-  const discountedPrice = payment?.amount ?? originalPrice;
+  const discountedPrice = lastPayment?.amount ?? originalPrice;
 
   return (
     <div className="p-6 max-w-4xl mx-auto space-y-6">
@@ -57,15 +57,15 @@ export default function BookingDetailPage() {
             {car.imageUrl && (
               <img
                 src={car.imageUrl}
-                alt={car.name}
+                alt={car.name ?? "Xe"}
                 className="w-full md:w-64 h-44 object-cover rounded-lg shadow-md"
               />
             )}
             <div className="flex-1 space-y-2">
-              <h2 className="text-2xl font-semibold">{car.name}</h2>
-              <div>Gói thuê: <b>{plan?.durationType ?? booking.planId}</b></div>
-              <div>Ngày nhận xe: {new Date(booking.startDate).toLocaleDateString()}</div>
-              <div>Ngày trả xe: {new Date(booking.endDate).toLocaleDateString()}</div>
+              <h2 className="text-2xl font-semibold">{car.name ?? "Tên xe không có"}</h2>
+              <div>Gói thuê: <b>{plan?.durationType ?? "Không có"}</b></div>
+              <div>Ngày nhận xe: {booking.startDate ? new Date(booking.startDate).toLocaleDateString() : "Không xác định"}</div>
+              <div>Ngày trả xe: {booking.endDate ? new Date(booking.endDate).toLocaleDateString() : "Không xác định"}</div>
 
               <div className="mt-4">
                 <div className="text-gray-400 line-through text-lg">
@@ -91,18 +91,18 @@ export default function BookingDetailPage() {
         <div className="mb-4">
           <span className="font-semibold">Trạng thái booking: </span>
           <span className={booking.status === "Confirmed" ? "text-green-600" : "text-gray-600"}>
-            {booking.status}
+            {booking.status ?? "Chưa xác định"}
           </span>
         </div>
 
         {/* Thông tin Payment */}
-        {payment && (
+        {lastPayment && (
           <div className="border-t pt-4 space-y-2">
             <div className="font-semibold text-lg mb-2">Thông tin thanh toán</div>
-            <div>Phương thức: {payment.method}</div>
-            <div>Trạng thái: {payment.status}</div>
-            <div>Ngày thanh toán: {new Date(payment.paymentDate).toLocaleDateString()}</div>
-            <div>Số tiền: {payment.amount.toLocaleString()} ₫</div>
+            <div>Phương thức: {lastPayment.method ?? "Không xác định"}</div>
+            <div>Trạng thái: {lastPayment.status ?? "Không xác định"}</div>
+            <div>Ngày thanh toán: {lastPayment.paymentDate ? new Date(lastPayment.paymentDate).toLocaleDateString() : "Không xác định"}</div>
+            <div>Số tiền: {lastPayment.amount.toLocaleString()} ₫</div>
           </div>
         )}
       </div>

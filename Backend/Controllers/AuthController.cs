@@ -15,6 +15,7 @@ namespace Controllers
     {
         private readonly AppDbContext _context;
         private readonly IConfiguration _config;
+
         public AuthController(AppDbContext context, IConfiguration config)
         {
             _config = config;
@@ -35,27 +36,34 @@ namespace Controllers
                 return Unauthorized("Mật khẩu không đúng");
             }
 
-            var token = GenerateJwtToken(user);
             if (!user.IsVerified && DateTime.UtcNow > user.CreatedAt.AddHours(24))
             {
-                user.IsDeleted = true;
-                _context.SaveChanges();
+                if (user.Role != "admin")
+                {
+                    user.IsDeleted = true;
+                    await _context.SaveChangesAsync();
+                }
             }
 
-            return Ok(
-                new
+            if (user.IsDeleted && user.Role != "admin")
+            {
+                return BadRequest("Tài khoản chưa xác thực email, vui lòng xác thực lại để đăng nhập.");
+            }
+
+            var token = GenerateJwtToken(user);
+
+            return Ok(new
+            {
+                Token = token,
+                User = new
                 {
-                    Token = token,
-                    User = new
-                    {
-                        user.UserId,
-                        user.Name,
-                        user.Role,
-                        user.Email,
-                        user.Address
-                    }
+                    user.UserId,
+                    user.Name,
+                    user.Role,
+                    user.Email,
+                    user.Address
                 }
-            );
+            });
         }
 
         private string GenerateJwtToken(User user)

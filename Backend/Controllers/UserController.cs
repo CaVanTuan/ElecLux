@@ -244,14 +244,14 @@ namespace Controllers
         }
 
         [HttpPost("send-verification-email")]
-        public IActionResult SendVerificationEmail([FromBody] SendEmailRequest request)
+        public async Task<IActionResult> SendVerificationEmail([FromBody] SendEmailRequest request)
         {
-            var email = request.Email;
-            var user = _context.Users.FirstOrDefault(u => u.Email == email);
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
             if (user == null) return NotFound("Người dùng không tồn tại");
 
             var token = Guid.NewGuid().ToString();
-            _cache.Set($"VERIFY_{email}", token);
+            user.IsDeleted = false;
+            await _context.SaveChangesAsync();
 
             try
             {
@@ -266,10 +266,10 @@ namespace Controllers
                 {
                     From = new MailAddress("sniper021003@gmail.com"),
                     Subject = "Xác thực tài khoản",
-                    Body = $"Click vào link để xác thực: http://localhost:3000/verify-email?token={token}&email={email}",
+                    Body = $"Click vào link để xác thực: http://localhost:3000/verify-email?token={token}&email={user.Email}",
                     IsBodyHtml = false
                 };
-                mail.To.Add(email);
+                mail.To.Add(user.Email);
                 smtp.Send(mail);
             }
             catch (Exception ex)
@@ -279,30 +279,15 @@ namespace Controllers
 
             return Ok("Email xác thực đã được gửi.");
         }
-
         [HttpPost("verify-email")]
-        public IActionResult VerifyEmail([FromBody] VerifyEmailRequest request)
+        public async Task<IActionResult> VerifyEmail([FromBody] VerifyEmailRequest request)
         {
-            var user = _context.Users.FirstOrDefault(u => u.Email == request.Email);
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
             if (user == null) return NotFound("Người dùng không tồn tại");
 
-            // Kiểm tra 24h kể từ lúc tạo tài khoản
-            if (DateTime.UtcNow > user.CreatedAt.AddHours(24))
-            {
-                user.IsDeleted = true;
-                _context.SaveChanges();
-                return BadRequest("Thời gian xác thực đã hết hạn (hơn 24h kể từ khi tạo tài khoản).");
-            }
-
-            if (!_cache.TryGetValue($"VERIFY_{request.Email}", out string cachedToken))
-                return BadRequest("Token không tồn tại hoặc đã hết hạn");
-
-            if (cachedToken != request.Token)
-                return BadRequest("Token không đúng");
-
             user.IsVerified = true;
-            _cache.Remove($"VERIFY_{request.Email}");
-            _context.SaveChanges();
+            user.IsDeleted = false;
+            await _context.SaveChangesAsync();
 
             return Ok("Xác thực tài khoản thành công 🎉");
         }
