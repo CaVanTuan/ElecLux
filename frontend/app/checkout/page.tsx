@@ -80,7 +80,7 @@ export default function CheckoutPage() {
     const handleApplyPromo = async (code: string) => {
         if (!code) {
             setPromo(null);
-            setTotalPrice(selectedPlan.price);
+            setTotalPrice(selectedPlan?.price || 0);
             setPromoCode("");
             return;
         }
@@ -94,6 +94,7 @@ export default function CheckoutPage() {
             console.error(error);
             setPromo(null);
             setTotalPrice(selectedPlan.price);
+            setTotalPrice(selectedPlan?.price || 0);
             setPromoCode("");
             alert("Mã giảm giá không hợp lệ 😢");
         }
@@ -110,11 +111,13 @@ export default function CheckoutPage() {
                 promoId: promo ? promo.promoId : undefined,
             });
 
-            await createPayment({
+            const paymentData = {
                 BookingId: booking.booking.bookingId,
                 PromoId: promo ? promo.promoId : null,
                 Method: "COD"
-            });
+            };
+
+            await createPayment(paymentData);
 
             alert("Đặt xe và thanh toán COD thành công 😎");
             router.push("/booking");

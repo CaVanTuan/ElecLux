@@ -27,7 +27,7 @@ namespace Controllers
             if (int.Parse(currentUserId) != booking.UserId) return Forbid();
 
             Promotion promo = null;
-            if (request.PromoId != 0)
+            if (request.PromoId.HasValue)
             {
                 promo = await _context.Promotions
                 .FirstOrDefaultAsync(c => c.PromoId == request.PromoId);
@@ -75,7 +75,7 @@ namespace Controllers
     public class CreatePaymentRequest
     {
         public int BookingId { get; set; }
-        public int PromoId { get; set; }
+        public int? PromoId { get; set; }
         public string Method { get; set; }
 
     }
